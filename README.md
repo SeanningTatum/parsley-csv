@@ -169,6 +169,68 @@ The tool provides clear error messages for common issues:
 - Invalid date formats
 - Date filter column not found
 
+## Building Release Binaries
+
+### Local Build Script
+
+To build release binaries for all macOS architectures, use the included build script:
+
+```bash
+./build-release.sh
+```
+
+This will:
+- Build for x86_64 (Intel Macs)
+- Build for aarch64 (Apple Silicon Macs)
+- Create a universal binary (works on both)
+- Generate compressed archives
+- Create SHA256 checksums
+
+All distribution files will be in the `dist/` directory.
+
+### Automated Releases with GitHub Actions
+
+The project includes a GitHub Actions workflow that automatically builds binaries for:
+- macOS (Intel and Apple Silicon)
+- Linux (x86_64 and ARM64)
+- Windows (x86_64)
+
+#### **Automatic Release on Version Change (Recommended)**
+
+Simply update the version in `Cargo.toml` and push to main:
+
+```bash
+# Edit Cargo.toml and change the version
+# Example: version = "0.4.1"
+
+git add Cargo.toml
+git commit -m "Bump version to 0.4.1"
+git push origin main
+```
+
+GitHub Actions will automatically:
+- Detect the version change
+- Create a git tag (e.g., `v0.4.1`)
+- Build binaries for all platforms
+- Create a GitHub Release with all downloadable archives
+
+#### **Manual Release with Tag**
+
+Alternatively, you can manually create and push a tag:
+
+```bash
+git tag v0.4.1
+git push origin v0.4.1
+```
+
+#### **Create Tag from GitHub Dashboard**
+
+You can also create a release directly from the GitHub web interface:
+1. Go to "Releases" → "Create a new release"
+2. Click "Choose a tag" → Type a new tag (e.g., `v0.4.1`)
+3. Click "Create new tag on publish"
+4. The workflow will automatically build and attach binaries to the release
+
 ## License
 
 This project is open source. Please check the license file for details.
