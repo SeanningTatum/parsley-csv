@@ -1,4 +1,4 @@
-use parsley_csv::{parse_sql_file, extract_insert_values, write_csv, parse_table_columns};
+use table_to_csv::{parse_sql_file, extract_insert_values, write_csv, parse_table_columns};
 use std::fs;
 use std::path::Path;
 
