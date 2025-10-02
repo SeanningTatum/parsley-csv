@@ -3,7 +3,7 @@ use rayon::prelude::*;
 use std::env;
 use std::path::Path;
 
-use parsley_csv::{
+use table_to_csv::{
     parse_sql_file, extract_insert_values, write_csv,
     parse_date_filter, apply_date_filter,
 };

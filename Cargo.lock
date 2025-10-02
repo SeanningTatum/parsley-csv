@@ -205,17 +205,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
-name = "parsley-csv"
-version = "0.4.0"
-dependencies = [
- "anyhow",
- "chrono",
- "csv",
- "rayon",
- "regex",
-]
-
-[[package]]
 name = "proc-macro2"
 version = "1.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -338,6 +327,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "table-to-csv"
+version = "0.4.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "csv",
+ "rayon",
+ "regex",
 ]
 
 [[package]]

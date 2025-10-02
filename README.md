@@ -1,12 +1,14 @@
-# Parsley CSV
+# Table to CSV
 
-A Rust command-line tool that converts SQL database dumps to CSV files. Parsley CSV parses SQL files containing `CREATE TABLE` and `INSERT` statements and extracts the data into separate CSV files for each table.
+A Rust command-line tool that converts SQL database dumps to CSV files. Table to CSV parses SQL files containing `CREATE TABLE` and `INSERT` statements and extracts the data into separate CSV files for each table.
 
 ## Features
 
 - **SQL Parsing**: Automatically detects table schemas from `CREATE TABLE` statements
 - **Data Extraction**: Extracts data from `INSERT` statements and converts to CSV format
 - **Multiple Tables**: Handles databases with multiple tables, creating separate CSV files
+- **Date Filtering**: Filter rows by date range using `--date-filter` option
+- **Parallel Processing**: Fast multi-threaded CSV generation using Rayon
 - **Robust Value Parsing**: Properly handles quoted strings, escaped characters, and SQL functions like `replace()`
 - **Error Handling**: Comprehensive error handling with helpful error messages
 - **Cross-Platform**: Built with Rust for excellent performance and cross-platform compatibility
@@ -19,13 +21,13 @@ A Rust command-line tool that converts SQL database dumps to CSV files. Parsley 
 
 ### Install from crates.io
 
-The easiest way to install Parsley CSV is via cargo:
+The easiest way to install Table to CSV is via cargo:
 
 ```bash
-cargo install parsley-csv
+cargo install table-to-csv
 ```
 
-This will install the `parsley-csv` binary to your Cargo bin directory (typically `~/.cargo/bin/`).
+This will install the `table-to-csv` binary to your Cargo bin directory (typically `~/.cargo/bin/`).
 
 ### Building from Source
 
@@ -37,38 +39,58 @@ This will install the `parsley-csv` binary to your Cargo bin directory (typicall
 cargo build --release
 ```
 
-The executable will be created at `target/release/parsley-csv`.
+The executable will be created at `target/release/table-to-csv`.
 
 ## Usage
 
+### Basic Usage
+
 ```bash
-parsley-csv <sql_file>
+table-to-csv <sql_file>
+```
+
+### With Date Filtering
+
+```bash
+table-to-csv <sql_file> --date-filter <column_name> <start_date> [end_date]
 ```
 
 Or if built from source:
 
 ```bash
-./target/release/parsley-csv <sql_file>
+./target/release/table-to-csv <sql_file> [--date-filter <column_name> <start_date> [end_date]]
 ```
 
 Or using Cargo (when developing):
 
 ```bash
-cargo run <sql_file>
+cargo run <sql_file> [-- --date-filter <column_name> <start_date> [end_date]]
 ```
 
 ### Examples
 
 ```bash
-# Using the installed binary (after cargo install parsley-csv)
-parsley-csv database.sql
+# Using the installed binary (after cargo install table-to-csv)
+table-to-csv database.sql
 
 # Convert a database dump to CSV files (when developing)
 cargo run database.sql
 
 # Using the compiled binary from source
-./target/release/parsley-csv test.sql
+./target/release/table-to-csv test.sql
+
+# Filter by date range (column name: createdAt, from 2024-01-01 to 2024-12-31)
+table-to-csv database.sql --date-filter createdAt 2024-01-01 2024-12-31
+
+# Filter from a start date to today (end date defaults to today)
+table-to-csv database.sql --date-filter date 2023-06-15
+
+# Using Cargo with date filter
+cargo run database.sql -- --date-filter createdAt 2024-01-01
 ```
+
+**Date Format**: YYYY-MM-DD  
+**Note**: If `end_date` is not provided, it defaults to today's date
 
 ## How It Works
 
@@ -78,7 +100,9 @@ cargo run database.sql
    - Quoted strings (single and double quotes)
    - Escaped characters (`''` for single quotes, `""` for double quotes)
    - SQL functions like `replace()` for JSON data
-4. **CSV Generation**: Creates properly formatted CSV files with headers and data
+4. **Date Filtering** (optional): Filters rows based on date column values within specified date range
+5. **Parallel Processing**: Uses Rayon to process multiple tables concurrently for better performance
+6. **CSV Generation**: Creates properly formatted CSV files with headers and data
 
 ## Example
 
@@ -95,7 +119,7 @@ INSERT INTO users VALUES(1, 'Alice Smith', 'alice@example.com');
 INSERT INTO users VALUES(2, 'Bob Johnson', 'bob@example.com');
 ```
 
-Parsley CSV will generate `users.csv`:
+Table to CSV will generate `users.csv`:
 
 ```csv
 id,name,email
@@ -112,12 +136,15 @@ id,name,email
 - SQL `replace()` function calls
 - Multi-line table definitions
 - Foreign key constraints (ignored during parsing)
+- Date/timestamp columns for filtering (supports various date formats)
 
 ## Dependencies
 
 - `csv` - CSV file reading and writing
 - `regex` - Regular expression pattern matching
 - `anyhow` - Error handling
+- `rayon` - Parallel processing for improved performance
+- `chrono` - Date and time parsing for date filtering
 
 ## Testing
 
@@ -139,6 +166,8 @@ The tool provides clear error messages for common issues:
 - File not found
 - SQL parsing errors
 - CSV writing errors
+- Invalid date formats
+- Date filter column not found
 
 ## License
 
@@ -150,7 +179,7 @@ Contributions are welcome! Please feel free to submit issues and pull requests.
 
 ## Example Output
 
-When processing a SQL file, Parsley CSV will output:
+When processing a SQL file, Table to CSV will output:
 
 ```
 Processing SQL file: database.sql
@@ -167,6 +196,36 @@ Generated CSV files:
   - calllogs.csv
   - callsession.csv
   - d1_migrations.csv
+
+To view the CSV files, you can use:
+  cat calllogs.csv | head -5
+  cat callsession.csv | head -5
+
+Or open them in a spreadsheet application.
+```
+
+### Example Output with Date Filtering
+
+When using the date filter feature:
+
+```
+Date filter enabled:
+  Column: createdAt
+  Start date: 2024-01-01
+  End date: 2024-12-31
+Processing SQL file: database.sql
+Found table: CallLogs with 9 columns
+Found table: CallSession with 9 columns
+Found table: d1_migrations with 3 columns
+Created calllogs.csv with 15 rows
+Created callsession.csv with 42 rows
+Warning: No rows remain for table 'd1_migrations' after filtering - skipping
+
+Conversion complete!
+
+Generated CSV files:
+  - calllogs.csv
+  - callsession.csv
 
 To view the CSV files, you can use:
   cat calllogs.csv | head -5
