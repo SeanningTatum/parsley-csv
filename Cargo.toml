@@ -2,7 +2,7 @@
 name = "table-to-csv"
 description = "Parsley CSV is a command-line tool that converts SQL database dumps to CSV files."
 license = "MIT"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
 keywords = ["database", "cli", "data-processing", "csv"]
 authors = ["Sean Urgel <developer@seanurgel.dev>"]
